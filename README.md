@@ -1,2 +1,0 @@
-# knowlege  
-# leetcode
