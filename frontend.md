@@ -1,4 +1,4 @@
-### new 的实现原理
+#### new 的实现原理
 
 1）创建一个空对象，构造函数中的 this 指向这个空对象  
 2）这个新对象被执行[[prototype]]连接  
@@ -350,10 +350,10 @@ map.has(o); //false
 ```
 
 - Map 结构原生提供三个遍历器生成函数和一个遍历方法。
-  - Map.prototype.keys()：返回键名的遍历器。
-  - Map.prototype.values()：返回键值的遍历器。
-  - Map.prototype.entries()：返回所有成员的遍历器。
-  - Map.prototype.forEach()：遍历 Map 的所有成员
+  - `Map.prototype.keys()`：返回键名的遍历器。
+  - `Map.prototype.values()`：返回键值的遍历器。
+  - `Map.prototype.entries()`：返回所有成员的遍历器。
+  - `Map.prototype.forEach()`：遍历 Map 的所有成员
 
 ```javascript
 const map = new Map([["F", "no"], ["T", "yes"]]);
@@ -391,7 +391,7 @@ for (let [key, value] of map) {
 // "T" "yes"
 ```
 
-- Map 结构转为数组结构，比较快速的方法是使用扩展运算符（...）。
+- Map 结构转为数组结构，比较快速的方法是使用扩展运算符`（...）`。
 
 ```javascript
 const map = new Map([[1, "one"], [2, "two"], [3, "three"]]);
@@ -409,7 +409,7 @@ console.log([...map]);
 // [[1,'one'], [2, 'two'], [3, 'three']]
 ```
 
-- 结合数组的 map 方法、filter 方法，可以实现 Map 的遍历和过滤（Map 本身没有 map 和 filter 方法）。
+- 结合数组的 `map` 方法、`filter` 方法，可以实现 Map 的遍历和过滤（Map 本身没有 map 和 filter 方法）。
 
 ```javascript
 const map0 = new Map()
@@ -424,7 +424,7 @@ const map2 = new Map([...map0].map(([k, v]) => [k * 2, "_" + v]));
 // 产生 Map 结构 {2 => '_a', 4 => '_b', 6 => '_c'}
 ```
 
-- Map 还有一个 forEach 方法，与数组的 forEach 方法类似，也可以实现遍历。forEach 方法还可以接受第二个参数，用来绑定 this。
+- Map 还有一个 `forEach` 方法，与数组的 forEach 方法类似，也可以实现遍历。forEach 方法还可以接受第二个参数，用来绑定 this。
 
 ```javascript
 map.forEach(function(value, key, map) {
@@ -536,48 +536,54 @@ Function.prototype.apply = function (thisArg, ret) {
     return result;
 ```
 
-#### 实现深拷贝
+#### 深拷贝和浅拷贝的区别是什么？实现一个深拷贝  
+对于复杂数据类型来说，浅拷贝只拷贝一层，而深拷贝是层层拷贝
+- 深拷贝复制变量值，对于非基本类型的变量，则递归至基本变量后，再复制。  
+深拷贝的对象与原来的对象是完全隔离的，互不影响，对一个对象的修改并不影响另一个对象。
+- 浅拷贝是会将对象的每一个属性依次复制，但是当对象的属性值是引用类型时，实质复制的是其引用，当引用指向的值改变时也会跟着变化。  
+浅拷贝可用`for in`、`Object.assign`、`扩展运算符[...]`、`Array.prototype.slice()`、`Array.prototype.concat()`等
 
-- 递归去复制所有层级属性
+- **实现深拷贝**  
+	- 递归去复制所有层级属性
 
-```javascript
-function deepClone(obj) {
-  let objClone = Array.isArray ? [] : {};
-  if (obj && typeof obj === "object") {
-    for (key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (obj[key] && typeof obj[key] === "object") {
-          objClone[key] = deepClone(obj[key]);
-        } else {
-          objClone[key] = obj[key];
-        }
-      }
-    }
-  }
-  return objClone;
-}
-let arr1 = [1, 2, [1, 2], 4, 5];
-let arr2 = deepClone(arr1);
-arr1[2] = [2, 3];
-console.log(arr1, arr2);
-```
+	```javascript
+	function deepClone(obj) {
+	  let objClone = Array.isArray ? [] : {};
+	  if (obj && typeof obj === "object") {
+	    for (key in obj) {
+	      if (obj.hasOwnProperty(key)) {
+		if (obj[key] && typeof obj[key] === "object") {
+		  objClone[key] = deepClone(obj[key]);
+		} else {
+		  objClone[key] = obj[key];
+		}
+	      }
+	    }
+	  }
+	  return objClone;
+	}
+	let arr1 = [1, 2, [1, 2], 4, 5];
+	let arr2 = deepClone(arr1);
+	arr1[2] = [2, 3];
+	console.log(arr1, arr2);
+	```
 
-- 利用 JSONstringify 和 parse 或者 依赖 JQ 库
+	- 利用 JSONstringify 和 parse 或者 依赖 JQ 库
 
-```javascript
-function deepClone(obj) {
-  let _obj = JSON.stringify(obj),
-    objClone = JSON.parse(_obj);
-  return objClone;
-}
+	```javascript
+	function deepClone(obj) {
+	  let _obj = JSON.stringify(obj),
+	    objClone = JSON.parse(_obj);
+	  return objClone;
+	}
 
-let arr1 = [1, 2, [1, 2], 4, 5];
-let arr2 = deepClone(arr1);
-let arr3 = $.extend(true, [], arr1); //利用JQ库的.extend
+	let arr1 = [1, 2, [1, 2], 4, 5];
+	let arr2 = deepClone(arr1);
+	let arr3 = $.extend(true, [], arr1); //利用JQ库的.extend
 
-arr1[0] = 2;
-arr1[2][0] = 4;
-arr2[2][0] = 122;
-console.log(arr1, arr2, arr3);
-```
+	arr1[0] = 2;
+	arr1[2][0] = 4;
+	arr2[2][0] = 122;
+	console.log(arr1, arr2, arr3);
+	```
 
