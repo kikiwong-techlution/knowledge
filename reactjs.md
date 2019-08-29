@@ -1,5 +1,5 @@
 #### List
-```javascript
+```jsx
 import React from 'react'
 
 function NumberList(props){
@@ -24,5 +24,15 @@ function NumberList(props){
 }
 
 export default NumberList;
+
+```
+```jsx
+const numbers=[1,2,3,4,5]
+return (
+    <div>
+        <NumberList numbers={numbers}>
+    </div>
+    
+)
 
 ```
